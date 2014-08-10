@@ -11,18 +11,12 @@ else:
     import SimpleHTTPServer
     import SocketServer
 
-import show_my_ip
+from show_my_ip import show_my_ip
 
 
 PORT = 8000 if len(sys.argv) == 1 else int(sys.argv[1])
 
-print('Detected IP addresses:\n')
-
-result = show_my_ip.show_my_ip()
-for i in result:
-    print(i + ':')
-    print('   ', result[i])
-    print('')
+show_my_ip.main()
 
 if VERSION == 3:
     server_address = ('', PORT)

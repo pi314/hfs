@@ -1,1 +1,0 @@
-../show_my_ip/show_my_ip.py
