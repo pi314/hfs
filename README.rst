@@ -1,5 +1,16 @@
-This project depends on another project ``show_my_ip``, so please clone that repo as well.
+==================
+Simple-http-server
+==================
 
-I tried ``git-submodule`` but failed, now I use symbolic link to satisfy this dependency.
+A simple http server command line tool implemented by Python.
 
-The symbolic link is dirty I know, but currently it works.
+Works under both Python2 and Python3.
+
+Usage: python simple-http-server.py {port}
+
+How I deploy it
+---------------
+
+1.  Set ``~/bin`` in ``$PATH``
+2.  Put this repo in ``~/bin/.repo``
+3.  ``ln -s ~/bin/.repo/simple-http-server/simple-http-server.py ~/bin/simple-http-server
