@@ -1,3 +1,3 @@
 [submodule "show_my_ip"]
-	path = show_my_ip
+	path = show-my-ip
 	url = http://github.com/pi314/show_my_ip.git
