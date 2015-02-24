@@ -13,5 +13,5 @@ How I deploy it
 
 1.  Set ``~/bin`` in ``$PATH``
 2.  Put this repo in ``~/bin/.repo``
-3.  ``ln -s ~/bin/.repo/nano-http-server/nano-http-server.py ~/bin/nano-http-server
+3.  ``ln -s ~/bin/.repo/nano-http-server/nano-http-server.py ~/bin/nano-http-server``
 
