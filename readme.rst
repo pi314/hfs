@@ -4,7 +4,7 @@ Nano-http-server
 
 A simple http server command line tool implemented by Python.
 
-Works under both Python2 and Python3.
+Works under and Python3 only.
 
 Usage: ``python nano-http-server.py [port]``
 
