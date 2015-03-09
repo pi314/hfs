@@ -4,6 +4,10 @@ import sys
 
 VERSION = sys.version_info[0]
 
+if VERSION == 2:
+    print('This program only supports Python3, please use Python3 instead.')
+    exit()
+
 import http.server
 import socketserver
 import io
