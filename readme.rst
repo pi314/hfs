@@ -2,9 +2,7 @@
 Nano-http-server
 ================
 
-A simple http server command line tool implemented by Python.
-
-Works under Python3 only.
+A simple http server command line tool implemented in Python with `bottle.py <http://bottlepy.org`_.
 
 Usage: ``python nano-http-server.py [port]``
 
