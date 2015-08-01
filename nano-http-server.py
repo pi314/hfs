@@ -84,4 +84,5 @@ def pretty_upper_dir_list(filepath):
     upper_dir_list = [('/'.join(map(lambda x:x[1], curdir_name_split[:i+1])), d) for i,d in curdir_name_split]
     return upper_dir_list
 
-bottle.run(host='0.0.0.0', port=sys.argv[1])
+port = 8000 if len(sys.argv) == 1 else int(sys.argv[1])
+bottle.run(host='0.0.0.0', port=port)
