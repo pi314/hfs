@@ -38,16 +38,18 @@
         <span>/</span> <a href="/{{ dhref }}">{{ dtext }}</a>
       % end
     </h2>
-    <ul id="btn-show-hidden-files">
-      <li class="btn" onclick="show_hidden_files();">[&#8594; show hidden files]</li>
-    </ul>
-    <ul id="hidden-files" class="hidden">
-      <li class="btn" onclick="hide_hidden_files();">[&#8595; hide hidden files]</li>
-      % for fhref,ftext in hidden_file_list:
-      <li><a href="/{{ curdir }}/{{ fhref }}">{{ ftext }}</a></li>
-      % end
-      <li class="btn" onclick="hide_hidden_files();">[&#8593; hide hidden files]</li>
-    </ul>
+    % if len(hidden_file_list):
+      <ul id="btn-show-hidden-files">
+        <li class="btn" onclick="show_hidden_files();">[&#8594; show hidden files]</li>
+      </ul>
+      <ul id="hidden-files" class="hidden">
+        <li class="btn" onclick="hide_hidden_files();">[&#8595; hide hidden files]</li>
+        % for fhref,ftext in hidden_file_list:
+        <li><a href="/{{ curdir }}/{{ fhref }}">{{ ftext }}</a></li>
+        % end
+        <li class="btn" onclick="hide_hidden_files();">[&#8593; hide hidden files]</li>
+      </ul>
+    % end
     <ul>
       % for fhref,ftext in file_list:
       <li><a href="/{{ curdir }}/{{ fhref }}">{{ ftext }}</a></li>
