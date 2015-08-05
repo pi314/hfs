@@ -43,9 +43,15 @@ def serve(urlpath):
         return bottle.redirect('/{}'.format(urlpath))
 
 def serve_file(filepath):
+    import mimetypes
+    mimetype = None
+    if mimetypes.guess_type(filepath)[0] is None:
+        mimetype='application/octet-stream'
+
     return bottle.static_file(
         filepath,
         root='.',
+        mimetype=mimetype
     )
 
 def serve_dir(filepath):
