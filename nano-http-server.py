@@ -44,8 +44,8 @@ def serve(urlpath):
 
 def serve_file(filepath):
     import mimetypes
-    mimetype = None
-    if mimetypes.guess_type(filepath)[0] is None:
+    mimetype = mimetypes.guess_type(filepath)[0]
+    if mimetype is None:
         mimetype='application/octet-stream'
 
     return bottle.static_file(
