@@ -45,14 +45,14 @@
       <ul id="hidden-files" class="hidden">
         <li class="btn" onclick="hide_hidden_files();">[&#8595; hide hidden files]</li>
         % for fitem in filter(lambda x: x.hidden, flist):
-        <li><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
+        <li><span>{{ fitem.mtime }}</span> <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
         % end
         <li class="btn" onclick="hide_hidden_files();">[&#8593; hide hidden files]</li>
       </ul>
     % end
     <ul>
       % for fitem in filter(lambda x: not x.hidden, flist):
-      <li><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
+      <li><span>{{ fitem.mtime }}</span> <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
       % end
     </ul>
     <hr>

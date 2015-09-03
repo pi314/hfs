@@ -3,6 +3,7 @@ import bottle
 import os
 import show_my_ip
 import sys
+import datetime
 
 show_my_ip.output()
 
@@ -16,6 +17,7 @@ class FileItem:
     def __init__(self, fname):
         self.fname = fname
         self.isdir = False
+        self.mtime = '----/--/-- --:--:--'
 
     @property
     def ftext(self):
@@ -24,6 +26,13 @@ class FileItem:
     @property
     def hidden(self):
         return self.fname.startswith('.')
+
+    def setmtime(self, mtime):
+        t = datetime.datetime.fromtimestamp(mtime)
+        self.mtime = '{:04}/{:02}/{:02} {:02}:{:02}:{:02}'.format(
+            t.year, t.month, t.day,
+            t.hour, t.minute, t.second,
+        )
 
     def __repr__(self):
         return '<FileItem: "{}">'.format(self.ftext)
@@ -109,6 +118,7 @@ def get_file_list(filepath):
 
     for f in raw_fname_list:
         f.isdir = isdir(absdir(f.fname))
+        f.setmtime(os.path.getctime(absdir(f.fname)))
 
     return sorted(
         raw_fname_list,
