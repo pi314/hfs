@@ -3,6 +3,7 @@ import bottle
 import os
 import show_my_ip
 import sys
+import datetime
 
 show_my_ip.output()
 
@@ -11,9 +12,48 @@ bottle.TEMPLATE_PATH = [
 
 isdir = os.path.isdir
 
+
+class FileItem:
+    def __init__(self, fname):
+        self.fname = fname
+        self.isdir = False
+        self.mtime = '----/--/-- --:--:--'
+
+    @property
+    def ftext(self):
+        return self.fname + ('', '/')[self.isdir]
+
+    @property
+    def hidden(self):
+        return self.fname.startswith('.')
+
+    def setmtime(self, mtime):
+        t = datetime.datetime.fromtimestamp(mtime)
+        self.mtime = '{:04}/{:02}/{:02} {:02}:{:02}:{:02}'.format(
+            t.year, t.month, t.day,
+            t.hour, t.minute, t.second,
+        )
+
+    def __repr__(self):
+        return '<FileItem: "{}">'.format(self.ftext)
+
+
+class UpperDir:
+    def __init__(self, dname='', dpath=''):
+        self.dname = dname
+        self.dpath = dpath
+
+    def __add__(self, dname):
+        return UpperDir(dname, self.dpath + '/' + dname)
+
+    def __repr__(self):
+        return '<UpperDir: "{}">'.format(self.dpath)
+
+
 @bottle.route('/', method=('GET', 'POST'))
 def root():
     return serve('.')
+
 
 @bottle.route('/<urlpath:path>', method=('GET', 'POST'))
 def serve(urlpath):
@@ -42,6 +82,7 @@ def serve(urlpath):
 
         return bottle.redirect('/{}'.format(urlpath))
 
+
 def serve_file(filepath):
     import mimetypes
     mimetype = mimetypes.guess_type(filepath)[0]
@@ -54,41 +95,51 @@ def serve_file(filepath):
         mimetype=mimetype
     )
 
-def serve_dir(filepath):
-    print('['+ filepath +']')
-    file_list = pretty_file_list(filepath, lambda x: not x.startswith('.'))
-    hidden_file_list = pretty_file_list(filepath, lambda x: x.startswith('.'))
 
+def serve_dir(filepath):
     args = {
-        'upper_dir_list': pretty_upper_dir_list(filepath),
+        'upper_dlist': get_upper_dir_list(filepath),
         'curdir': filepath,
-        'hidden_file_list': hidden_file_list,
-        'file_list': file_list,
+        'flist': get_file_list(filepath),
         'upper_dir': os.path.dirname(filepath),
         'host': bottle.request.urlparts.netloc,
     }
     return bottle.template('listdir.html', **args)
 
-def pretty_file_list(filepath, hidden_fileter):
+
+def get_file_list(filepath):
     def absdir(x):
         return os.path.join(filepath, x)
 
+    raw_fname_list = list(map(
+        lambda x: FileItem(x),
+        os.listdir(filepath)
+    ))
+
+    for f in raw_fname_list:
+        f.isdir = isdir(absdir(f.fname))
+        f.setmtime(os.path.getctime(absdir(f.fname)))
+
     return sorted(
-        map(
-            lambda x: (x, x + ['', '/'][isdir(absdir(x))]),
-            filter(hidden_fileter, os.listdir(filepath))
-        ),
-        key=lambda x:x[1].endswith('/'),
+        raw_fname_list,
+        key=lambda x: x.isdir,
         reverse=True
     )
 
-def pretty_upper_dir_list(filepath):
+
+def get_upper_dir_list(filepath):
     if filepath == '.':
         filepath = ''
 
-    curdir_name_split = list(enumerate(filepath.split('/')))
-    upper_dir_list = [('/'.join(map(lambda x:x[1], curdir_name_split[:i+1])), d) for i,d in curdir_name_split]
-    return upper_dir_list
+    curdir_name_split = filepath.split('/')
+    upper_dlist = []
+    temp = UpperDir()
+    for i in curdir_name_split:
+        temp = temp + i
+        upper_dlist.append(temp)
+
+    return upper_dlist
+
 
 port = 8000 if len(sys.argv) == 1 else int(sys.argv[1])
 bottle.run(host='0.0.0.0', port=port)
