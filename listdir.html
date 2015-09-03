@@ -34,25 +34,25 @@
   <body>
     <h2>
       <a href="/">{{ host }}</a>
-      % for dhref, dtext in upper_dir_list:
-        <span>/</span> <a href="/{{ dhref }}">{{ dtext }}</a>
+      % for ditem in upper_dlist:
+        <span>/</span> <a href="{{ ditem.dpath }}">{{ ditem.dname }}</a>
       % end
     </h2>
-    % if len(hidden_file_list):
+    % if any(map(lambda x: x.hidden, flist)):
       <ul id="btn-show-hidden-files">
         <li class="btn" onclick="show_hidden_files();">[&#8594; show hidden files]</li>
       </ul>
       <ul id="hidden-files" class="hidden">
         <li class="btn" onclick="hide_hidden_files();">[&#8595; hide hidden files]</li>
-        % for fhref,ftext in hidden_file_list:
-        <li><a href="/{{ curdir }}/{{ fhref }}">{{ ftext }}</a></li>
+        % for fitem in filter(lambda x: x.hidden, flist):
+        <li><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
         % end
         <li class="btn" onclick="hide_hidden_files();">[&#8593; hide hidden files]</li>
       </ul>
     % end
     <ul>
-      % for fhref,ftext in file_list:
-      <li><a href="/{{ curdir }}/{{ fhref }}">{{ ftext }}</a></li>
+      % for fitem in filter(lambda x: not x.hidden, flist):
+      <li><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
       % end
     </ul>
     <hr>
