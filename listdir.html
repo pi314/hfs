@@ -1,60 +1,59 @@
 <html>
   <head>
     <title>{{ host }} - Nano http server</title>
-    <style>
-      * {
-        font-family: monospace;
-      }
-      ul {
-        list-style: none;
-        font-size: 20px;
-      }
-      .hidden {
-        display: none;
-      }
-      .showen {
-        display: block;
-      }
-      .btn {
-        cursor: pointer;
-        color: navy;
-      }
-    </style>
-    <script>
-      function show_hidden_files () {
-        document.getElementById('btn-show-hidden-files').className = 'hidden';
-        document.getElementById('hidden-files').className = '';
-      }
-      function hide_hidden_files () {
-        document.getElementById('btn-show-hidden-files').className = '';
-        document.getElementById('hidden-files').className = 'hidden';
-      }
-    </script>
+    <link rel="stylesheet" href="/static/main.css">
+    <script src="/static/jquery.min.js"></script>
+    <script src="/static/qrcode.js"></script>
+    <script src="/static/main.js"></script>
   </head>
   <body>
     <h2>
       <a href="/">{{ host }}</a>
-      % for ditem in upper_dlist:
-        <span>/</span> <a href="{{ ditem.dpath }}">{{ ditem.dname }}</a>
-      % end
+% for ditem in upper_dlist:
+      <span>/</span>
+      <a href="{{ ditem.dpath }}">{{ ditem.dname }}</a>
+% end
     </h2>
-    % if any(map(lambda x: x.hidden, flist)):
+    <div id="file-browser">
+% if any(map(lambda x: x.hidden, flist)):
       <ul id="btn-show-hidden-files">
-        <li class="btn" onclick="show_hidden_files();">[&#8594; show hidden files]</li>
+        <li class="btn btn-show">[&#8594; show hidden files]</li>
       </ul>
       <ul id="hidden-files" class="hidden">
-        <li class="btn" onclick="hide_hidden_files();">[&#8595; hide hidden files]</li>
-        % for fitem in filter(lambda x: x.hidden, flist):
-        <li><span>{{ fitem.mtime }}</span> <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
-        % end
-        <li class="btn" onclick="hide_hidden_files();">[&#8593; hide hidden files]</li>
-      </ul>
+        <li class="btn btn-hide">[&#8595; hide hidden files]</li>
+  % for fitem in filter(lambda x: x.hidden, flist):
+    % if fitem.ftext.endswith('/'):
+        <li>
+          <span>{{ fitem.mtime }}</span>
+          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
+        </li>
+    % else:
+        <li class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
+          <span>{{ fitem.mtime }}</span>
+          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
+        </li>
     % end
-    <ul>
-      % for fitem in filter(lambda x: not x.hidden, flist):
-      <li><span>{{ fitem.mtime }}</span> <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></li>
-      % end
-    </ul>
+  % end
+        <li class="btn btn-hide">[&#8593; hide hidden files]</li>
+      </ul>
+% end
+      <ul>
+% for fitem in filter(lambda x: not x.hidden, flist):
+  % if fitem.ftext.endswith('/'):
+        <li>
+          <span>{{ fitem.mtime }}</span>
+          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
+        </li>
+  % else:
+        <li class="q-item" onmouseenter="show_qr_code('http://{{ host }}/{{ curdir }}/{{ fitem.fname }}');">
+          <span>{{ fitem.mtime }}</span>
+          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
+        </li>
+  % end
+% end
+      </ul>
+    </div>
+    <div id="qrcode"></div>
     <hr>
     <h2>Upload file:</h2>
     <form method="POST" action="/{{ curdir }}" enctype="multipart/form-data">

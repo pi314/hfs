@@ -1,0 +1,38 @@
+* {
+    font-family: monospace;
+}
+
+#file-browser {
+    display: inline-block;
+    vertical-align: top;
+}
+
+ul {
+    list-style: none;
+    font-size: 20px;
+}
+
+.hidden {
+    display: none;
+}
+
+.showen {
+    display: block;
+}
+
+.btn {
+    cursor: pointer;
+    color: navy;
+}
+
+#qrcode {
+    position: fixed;
+    top: 50px;
+    right: 50px;
+    width: 256px;
+    height: 256px;
+}
+
+.q-item:hover {
+    background: gold;
+}

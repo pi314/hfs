@@ -7,8 +7,11 @@ import datetime
 
 show_my_ip.output()
 
+PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
+
 bottle.TEMPLATE_PATH = [
-    os.path.dirname(os.path.realpath(__file__))]
+    PROJECT_ROOT,
+]
 
 isdir = os.path.isdir
 
@@ -53,6 +56,11 @@ class UpperDir:
 @bottle.route('/', method=('GET', 'POST'))
 def root():
     return serve('.')
+
+
+@bottle.route('/static/<urlpath:path>')
+def static(urlpath):
+    return bottle.static_file(urlpath, root=os.path.join(PROJECT_ROOT, 'static'))
 
 
 @bottle.route('/<urlpath:path>', method=('GET', 'POST'))
@@ -113,7 +121,9 @@ def get_file_list(filepath):
 
     raw_fname_list = list(map(
         lambda x: FileItem(x),
-        os.listdir(filepath)
+        filter(lambda x: os.path.exists(os.path.join(filepath, x)),
+            os.listdir(filepath)
+        )
     ))
 
     for f in raw_fname_list:
