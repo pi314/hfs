@@ -17,25 +17,36 @@ isdir = os.path.isdir
 
 
 class FileItem:
-    def __init__(self, fname):
-        self.fname = fname
-        self.isdir = False
-        self.mtime = '----/--/-- --:--:--'
+    def __init__(self, fpath):
+        self.fpath = fpath
+
+    @property
+    def fname(self):
+        return os.path.basename(self.fpath)
 
     @property
     def ftext(self):
         return self.fname + ('', '/')[self.isdir]
 
     @property
-    def hidden(self):
-        return self.fname.startswith('.')
-
-    def setmtime(self, mtime):
-        t = datetime.datetime.fromtimestamp(mtime)
-        self.mtime = '{:04}/{:02}/{:02} {:02}:{:02}:{:02}'.format(
+    def mtime(self):
+        t = datetime.datetime.fromtimestamp(os.path.getctime(self.fpath))
+        return '{:04}/{:02}/{:02} {:02}:{:02}:{:02}'.format(
             t.year, t.month, t.day,
             t.hour, t.minute, t.second,
         )
+
+    @property
+    def hidden(self):
+        return self.fname.startswith('.')
+
+    @property
+    def isdir(self):
+        return isdir(self.fpath)
+
+    @property
+    def exists(self):
+        return os.path.exists(self.fpath)
 
     def __repr__(self):
         return '<FileItem: "{}">'.format(self.ftext)
@@ -116,19 +127,15 @@ def serve_dir(filepath):
 
 
 def get_file_list(filepath):
-    def absdir(x):
-        return os.path.join(filepath, x)
-
-    raw_fname_list = list(map(
-        lambda x: FileItem(x),
-        filter(lambda x: os.path.exists(os.path.join(filepath, x)),
-            os.listdir(filepath)
+    raw_fname_list = list(
+        filter(
+            lambda x: x.exists,
+            map(
+                lambda x: FileItem(os.path.join(filepath, x)),
+                os.listdir(filepath)
+            )
         )
-    ))
-
-    for f in raw_fname_list:
-        f.isdir = isdir(absdir(f.fname))
-        f.setmtime(os.path.getctime(absdir(f.fname)))
+    )
 
     return sorted(
         raw_fname_list,

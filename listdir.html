@@ -22,34 +22,20 @@
       <ul id="hidden-files" class="hidden">
         <li class="btn btn-hide">[&#8595; hide hidden files]</li>
   % for fitem in filter(lambda x: x.hidden, flist):
-    % if fitem.ftext.endswith('/'):
-        <li>
-          <span>{{ fitem.mtime }}</span>
-          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
-        </li>
-    % else:
         <li class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
           <span>{{ fitem.mtime }}</span>
           <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
         </li>
-    % end
   % end
         <li class="btn btn-hide">[&#8593; hide hidden files]</li>
       </ul>
 % end
       <ul>
 % for fitem in filter(lambda x: not x.hidden, flist):
-  % if fitem.ftext.endswith('/'):
-        <li>
-          <span>{{ fitem.mtime }}</span>
-          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
-        </li>
-  % else:
         <li class="q-item" onmouseenter="show_qr_code('http://{{ host }}/{{ curdir }}/{{ fitem.fname }}');">
           <span>{{ fitem.mtime }}</span>
           <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
         </li>
-  % end
 % end
       </ul>
     </div>
