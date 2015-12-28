@@ -37,6 +37,10 @@ class FileItem:
         )
 
     @property
+    def size(self):
+        return os.path.getsize(self.fpath)
+
+    @property
     def hidden(self):
         return self.fname.startswith('.')
 

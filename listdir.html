@@ -16,28 +16,33 @@
     </h2>
     <div id="file-browser">
 % if any(map(lambda x: x.hidden, flist)):
-      <ul id="btn-show-hidden-files">
-        <li class="btn btn-show">[&#8594; show hidden files]</li>
-      </ul>
-      <ul id="hidden-files" class="hidden">
-        <li class="btn btn-hide">[&#8595; hide hidden files]</li>
+      <div id="btn-show-hidden-files" class="btn btn-show">[&#8594; show hidden files]</div>
+
+      <div id="hidden-files" class="hidden">
+        <div class="btn btn-hide" colspan="3">[&#8595; hide hidden files]</div>
+        <table><tbody>
   % for fitem in filter(lambda x: x.hidden, flist):
-        <li class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
-          <span>{{ fitem.mtime }}</span>
-          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
-        </li>
+        <tr class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
+          <td>{{ fitem.mtime }}</td>
+          <td>{{ fitem.size }}</td>
+          <td><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a><td>
+        </tr>
   % end
-        <li class="btn btn-hide">[&#8593; hide hidden files]</li>
-      </ul>
+        </tbody></table>
+        <div class="btn btn-hide"><td>[&#8593; hide hidden files]</div>
+      </div>
 % end
-      <ul>
+      <p>
+        <table><tbody>
 % for fitem in filter(lambda x: not x.hidden, flist):
-        <li class="q-item" onmouseenter="show_qr_code('http://{{ host }}/{{ curdir }}/{{ fitem.fname }}');">
-          <span>{{ fitem.mtime }}</span>
-          <a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a>
-        </li>
+          <tr class="q-item" onmouseenter="show_qr_code('http://{{ host }}/{{ curdir }}/{{ fitem.fname }}');">
+            <td>{{ fitem.mtime }}</td>
+            <td>{{ fitem.size }}</td>
+            <td><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a></td>
+          </tr>
 % end
-      </ul>
+        </tbody></table>
+      </p>
     </div>
     <div id="qrcode"></div>
     <hr>

@@ -1,5 +1,6 @@
 * {
     font-family: monospace;
+    font-size: 20px;
 }
 
 #file-browser {
@@ -7,9 +8,12 @@
     vertical-align: top;
 }
 
-ul {
-    list-style: none;
-    font-size: 20px;
+table {
+    border-collapse: collapse;
+}
+
+td {
+    padding-left: 10px;
 }
 
 .hidden {
