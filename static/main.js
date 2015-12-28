@@ -13,6 +13,8 @@ $(function () {
         $('#hidden-files').addClass('hidden');
     });
 
+    show_qr_code(window.location);
+
 });
 
 function show_qr_code (text) {
