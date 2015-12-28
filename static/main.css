@@ -3,6 +3,40 @@
     font-size: 20px;
 }
 
+@media (max-width: 768px) { /* xs */
+    td:nth-child(1), td:nth-child(2) {
+        display: none;
+    }
+
+    tr:nth-child(odd) {
+        background: lightgray;
+    }
+
+    #file-browser {
+        width: 100%;
+    }
+
+    table {
+        width: 100%;
+    }
+
+    #qrcode {
+        width: 100%;
+        height: 100%;
+        margin: auto;
+    }
+}
+
+@media (min-width: 768px) { /* sm */
+    #qrcode {
+        position: fixed;
+        top: 50px;
+        right: 50px;
+        width: 256px;
+        height: 256px;
+    }
+}
+
 #file-browser {
     display: inline-block;
     vertical-align: top;
@@ -27,14 +61,6 @@ td {
 .btn {
     cursor: pointer;
     color: navy;
-}
-
-#qrcode {
-    position: fixed;
-    top: 50px;
-    right: 50px;
-    width: 256px;
-    height: 256px;
 }
 
 .q-item:hover {
