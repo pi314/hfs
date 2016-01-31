@@ -49,9 +49,14 @@
     <div id="qrcode"></div>
     <hr>
     <h2>Upload file:</h2>
-    <form method="POST" action="/{{ curdir }}" enctype="multipart/form-data">
-      <input type="file" name="upload">
-      <button id="upload">上傳</button>
+    <form id="form" method="POST" action="/{{ curdir }}" enctype="multipart/form-data">
+      <input type="file" id="file" name="upload">
+      <button id="btn_upload">上傳</button><br>
+      <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+        <div id="file-size"></div>
+      </div>
+      <div id="message"></div>
     </form>
   </body>
 </html>

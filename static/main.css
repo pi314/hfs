@@ -1,9 +1,6 @@
 * {
     font-family: monospace;
 }
-#file-browser *, h2 * {
-    font-size: 20px;
-}
 
 @media (max-width: 768px) { /* xs */
     td:nth-child(1), td:nth-child(2) {
@@ -27,9 +24,13 @@
         height: 100%;
         margin: auto;
     }
+
+    #progress-bar-container {
+        width: 100%;
+    }
 }
 
-@media (min-width: 768px) { /* sm */
+@media (min-width: 768px) { /* larger than sm */
     #qrcode {
         position: fixed;
         top: 50px;
@@ -37,11 +38,24 @@
         width: 256px;
         height: 256px;
     }
+
+    #progress-bar-container {
+        width: 400px;
+    }
 }
 
 #file-browser {
     display: inline-block;
     vertical-align: top;
+}
+
+#file-browser *,
+h2 * {
+    font-size: 20px;
+}
+
+#progress-bar-container {
+    font-size: 14px;
 }
 
 table {
@@ -67,4 +81,25 @@ td {
 
 .q-item:hover {
     background: gold;
+}
+
+#progress-bar-container {
+    position: relative;
+    display: none;
+    margin-top: 5px;
+    border: 1px solid black;
+    border-radius: 3px;
+    height: 20px;
+}
+
+#progress-bar {
+    position: absolute;
+    background: lime;
+    width: 0;
+    height: 100%;
+}
+
+#file-size {
+    position: absolute;
+    right: 0px;
 }
