@@ -89,6 +89,10 @@ def serve(urlpath):
     elif bottle.request.method == 'POST':
         if isdir(urlpath):
             upload = bottle.request.files.get('upload')
+            if not upload:
+                # client did not provide a file
+                return bottle.redirect('/{}'.format(urlpath))
+
             filepath = os.path.join(urlpath, upload.raw_filename)
             front, back = os.path.splitext(filepath)
             filename_probing_str = ''

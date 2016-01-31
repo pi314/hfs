@@ -1,5 +1,7 @@
 * {
     font-family: monospace;
+}
+#file-browser *, h2 * {
     font-size: 20px;
 }
 
