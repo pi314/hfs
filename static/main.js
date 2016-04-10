@@ -28,10 +28,13 @@ function show_qr_code (text) {
 
 
 function file_selected () {
-    var file = $('#file')[0].files[0];
-
+    var files = $('#file')[0].files;
+    var total_size = 0;
+    for (var i = 0; i < files.length; i++) {
+        total_size += files[i].size;
+    }
     $('#progress-bar-container').css('display', 'block');
-    $('#file-size').text(file.size);
+    $('#file-size').text(total_size);
 }
 
 

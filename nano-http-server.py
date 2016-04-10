@@ -88,24 +88,25 @@ def serve(urlpath):
 
     elif bottle.request.method == 'POST':
         if isdir(urlpath):
-            upload = bottle.request.files.get('upload')
+            upload = bottle.request.files.getall('upload')
             if not upload:
                 # client did not provide a file
                 return bottle.redirect('/{}'.format(urlpath))
 
-            filepath = os.path.join(urlpath, upload.raw_filename)
-            front, back = os.path.splitext(filepath)
-            filename_probing_str = ''
-            filename_probing_number = 1
+            for f in upload:
+                filepath = os.path.join(urlpath, f.raw_filename)
+                front, back = os.path.splitext(filepath)
+                filename_probing_str = ''
+                filename_probing_number = 1
 
-            def alternative_filename():
-                return '{}{}{}'.format(front, filename_probing_str, back)
+                def alternative_filename():
+                    return '{}{}{}'.format(front, filename_probing_str, back)
 
-            while os.path.exists(alternative_filename()):
-                filename_probing_str = '-{}'.format(filename_probing_number)
-                filename_probing_number += 1
+                while os.path.exists(alternative_filename()):
+                    filename_probing_str = '-{}'.format(filename_probing_number)
+                    filename_probing_number += 1
 
-            upload.save(alternative_filename())
+                f.save(alternative_filename())
 
         return bottle.redirect('/{}'.format(urlpath))
 
