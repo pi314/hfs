@@ -56,16 +56,16 @@ class FileItem:
         return '<FileItem: "{}">'.format(self.ftext)
 
 
-class UpperDir:
+class DirectoryItem:
     def __init__(self, dname='', dpath=''):
         self.dname = dname
         self.dpath = dpath
 
     def __add__(self, dname):
-        return UpperDir(dname, self.dpath + '/' + dname)
+        return DirectoryItem(dname, self.dpath + '/' + dname)
 
     def __repr__(self):
-        return '<UpperDir: "{}">'.format(self.dpath)
+        return '<DirectoryItem: "{}">'.format(self.dpath)
 
 
 @bottle.route('/', method=('GET', 'POST'))
@@ -159,7 +159,7 @@ def get_upper_dir_list(filepath):
 
     curdir_name_split = filepath.split('/')
     upper_dlist = []
-    temp = UpperDir()
+    temp = DirectoryItem()
     for i in curdir_name_split:
         temp = temp + i
         upper_dlist.append(temp)
