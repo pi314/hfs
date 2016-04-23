@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-import bottle
+import argparse
+import datetime
+import mimetypes
 import os
 import show_my_ip
 import sys
-import datetime
 
-show_my_ip.output()
+import bottle
+
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -81,10 +83,7 @@ def static(urlpath):
 @bottle.route('/<urlpath:path>', method=('GET', 'POST'))
 def serve(urlpath):
     if bottle.request.method == 'GET':
-        if isdir(urlpath):
-            return serve_dir(urlpath)
-
-        return serve_file(urlpath)
+        return (serve_dir if isdir(urlpath) else serve_file)(urlpath)
 
     elif bottle.request.method == 'POST':
         if isdir(urlpath):
@@ -112,7 +111,6 @@ def serve(urlpath):
 
 
 def serve_file(filepath):
-    import mimetypes
     mimetype = mimetypes.guess_type(filepath)[0]
     if mimetype is None:
         mimetype='application/octet-stream'
@@ -167,5 +165,16 @@ def get_upper_dir_list(filepath):
     return upper_dlist
 
 
-port = 8000 if len(sys.argv) == 1 else int(sys.argv[1])
-bottle.run(host='0.0.0.0', port=port)
+def main():
+    parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
+    parser.add_argument('-p', '--port',
+            help='The port this server should listen on',
+            nargs='?', type=int, default=8000)
+    args = parser.parse_args()
+
+    show_my_ip.output()
+
+    bottle.run(host='0.0.0.0', port=args.port)
+
+
+main()
