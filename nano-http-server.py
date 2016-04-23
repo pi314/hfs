@@ -3,7 +3,6 @@ import argparse
 import datetime
 import mimetypes
 import os
-import show_my_ip
 import sys
 
 import bottle
