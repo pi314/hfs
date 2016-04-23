@@ -5,7 +5,7 @@ import mimetypes
 import os
 import sys
 
-import bottle
+from . import bottle
 import netifaces
 
 
@@ -191,4 +191,5 @@ def main():
     bottle.run(host='0.0.0.0', port=args.port)
 
 
-main()
+if __name__ == '__main__':
+    main()
