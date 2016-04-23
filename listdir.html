@@ -11,7 +11,7 @@
   <body>
     <h2>
       <a href="/">{{ host }}</a>
-% for ditem in upper_dlist:
+% for ditem in ancestors_dlist:
       <span>/</span>
       <a href="{{ ditem.dpath }}">{{ ditem.dname }}</a>
 % end

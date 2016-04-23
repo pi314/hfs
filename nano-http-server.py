@@ -125,17 +125,16 @@ def serve_file(filepath):
 
 def serve_dir(filepath):
     args = {
-        'upper_dlist': get_upper_dir_list(filepath),
+        'ancestors_dlist': get_ancestors_dlist(filepath),
         'curdir': filepath,
-        'flist': get_file_list(filepath),
-        'upper_dir': os.path.dirname(filepath),
+        'flist': get_flist(filepath),
         'host': bottle.request.urlparts.netloc,
     }
     return bottle.template('listdir.html', **args)
 
 
-def get_file_list(filepath):
-    raw_fname_list = list(
+def get_flist(filepath):
+    raw_flist = list(
         filter(
             lambda x: x.exists,
             map(
@@ -146,24 +145,24 @@ def get_file_list(filepath):
     )
 
     return sorted(
-        raw_fname_list,
+        raw_flist,
         key=lambda x: x.isdir,
         reverse=True
     )
 
 
-def get_upper_dir_list(filepath):
+def get_ancestors_dlist(filepath):
     if filepath == '.':
         filepath = ''
 
     curdir_name_split = filepath.split('/')
-    upper_dlist = []
+    ancestors_dlist = []
     temp = DirectoryItem()
     for i in curdir_name_split:
         temp = temp + i
-        upper_dlist.append(temp)
+        ancestors_dlist.append(temp)
 
-    return upper_dlist
+    return ancestors_dlist
 
 
 def show_interface_list():
