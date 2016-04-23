@@ -7,6 +7,7 @@ import show_my_ip
 import sys
 
 import bottle
+import netifaces
 
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
@@ -165,6 +166,21 @@ def get_upper_dir_list(filepath):
     return upper_dlist
 
 
+def show_interface_list():
+    print('Available network interfaces:')
+    for iface in netifaces.interfaces():
+        info = netifaces.ifaddresses(iface)
+        if netifaces.AF_INET in info:
+            print()
+            if netifaces.AF_LINK in info:
+                print('  {} ({})'.format(iface, info[netifaces.AF_LINK][0]['addr']))
+            else:
+                print('  {}'.format(iface))
+            for addr in info[netifaces.AF_INET]:
+                print('    IP/Mask: {} / {}'.format(addr['addr'], addr['netmask']))
+    print()
+
+
 def main():
     parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
     parser.add_argument('-p', '--port',
@@ -172,7 +188,7 @@ def main():
             nargs='?', type=int, default=8000)
     args = parser.parse_args()
 
-    show_my_ip.output()
+    show_interface_list()
 
     bottle.run(host='0.0.0.0', port=args.port)
 
