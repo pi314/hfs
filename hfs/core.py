@@ -129,6 +129,10 @@ def serve_dir(filepath):
         'flist': get_flist(filepath),
         'host': bottle.request.urlparts.netloc,
     }
+
+    if bottle.request.get_header('User-Agent').startswith('curl'):
+        return bottle.template('curl-listdir.html', **args)
+
     return bottle.template('listdir.html', **args)
 
 

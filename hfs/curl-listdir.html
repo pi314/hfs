@@ -1,0 +1,15 @@
+{{ '=' * 79 }}
+% path = '/'.join(map(lambda ditem: ditem.dname, ancestors_dlist))
+{{ host }}/{{ path }}
+{{ '-' * 79 }}
+% fsize_column_width = max(*map(lambda x: len(str(x.size)), flist), 4)
+% if any(map(lambda x: x.hidden, flist)):
+  % for fitem in filter(lambda x: x.hidden, flist):
+{{ fitem.mtime }} | {{ str(fitem.size).ljust(fsize_column_width) }} | {{ fitem.ftext }}
+  % end
+% end
+{{ '-' * 79 }}
+% for fitem in filter(lambda x: not x.hidden, flist):
+{{ fitem.mtime }} | {{ str(fitem.size).ljust(fsize_column_width) }} | {{ fitem.ftext }}
+% end
+{{ '=' * 79 }}
