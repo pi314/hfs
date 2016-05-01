@@ -24,6 +24,7 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Utilities',
     ],
+    install_requires=['netifaces'],
     packages=find_packages(exclude=['scripts']),
     scripts=['scripts/hfs'],
 )
