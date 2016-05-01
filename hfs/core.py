@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-import bottle
-import os
-import show_my_ip
-import sys
+import argparse
 import datetime
+import mimetypes
+import os
+import sys
 
-show_my_ip.output()
+from . import bottle
+import netifaces
+
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -56,16 +58,16 @@ class FileItem:
         return '<FileItem: "{}">'.format(self.ftext)
 
 
-class UpperDir:
+class DirectoryItem:
     def __init__(self, dname='', dpath=''):
         self.dname = dname
         self.dpath = dpath
 
     def __add__(self, dname):
-        return UpperDir(dname, self.dpath + '/' + dname)
+        return DirectoryItem(dname, self.dpath + '/' + dname)
 
     def __repr__(self):
-        return '<UpperDir: "{}">'.format(self.dpath)
+        return '<DirectoryItem: "{}">'.format(self.dpath)
 
 
 @bottle.route('/', method=('GET', 'POST'))
@@ -81,10 +83,7 @@ def static(urlpath):
 @bottle.route('/<urlpath:path>', method=('GET', 'POST'))
 def serve(urlpath):
     if bottle.request.method == 'GET':
-        if isdir(urlpath):
-            return serve_dir(urlpath)
-
-        return serve_file(urlpath)
+        return (serve_dir if isdir(urlpath) else serve_file)(urlpath)
 
     elif bottle.request.method == 'POST':
         if isdir(urlpath):
@@ -112,7 +111,6 @@ def serve(urlpath):
 
 
 def serve_file(filepath):
-    import mimetypes
     mimetype = mimetypes.guess_type(filepath)[0]
     if mimetype is None:
         mimetype='application/octet-stream'
@@ -126,17 +124,16 @@ def serve_file(filepath):
 
 def serve_dir(filepath):
     args = {
-        'upper_dlist': get_upper_dir_list(filepath),
+        'ancestors_dlist': get_ancestors_dlist(filepath),
         'curdir': filepath,
-        'flist': get_file_list(filepath),
-        'upper_dir': os.path.dirname(filepath),
+        'flist': get_flist(filepath),
         'host': bottle.request.urlparts.netloc,
     }
     return bottle.template('listdir.html', **args)
 
 
-def get_file_list(filepath):
-    raw_fname_list = list(
+def get_flist(filepath):
+    raw_flist = list(
         filter(
             lambda x: x.exists,
             map(
@@ -147,25 +144,52 @@ def get_file_list(filepath):
     )
 
     return sorted(
-        raw_fname_list,
+        raw_flist,
         key=lambda x: x.isdir,
         reverse=True
     )
 
 
-def get_upper_dir_list(filepath):
+def get_ancestors_dlist(filepath):
     if filepath == '.':
         filepath = ''
 
     curdir_name_split = filepath.split('/')
-    upper_dlist = []
-    temp = UpperDir()
+    ancestors_dlist = []
+    temp = DirectoryItem()
     for i in curdir_name_split:
         temp = temp + i
-        upper_dlist.append(temp)
+        ancestors_dlist.append(temp)
 
-    return upper_dlist
+    return ancestors_dlist
 
 
-port = 8000 if len(sys.argv) == 1 else int(sys.argv[1])
-bottle.run(host='0.0.0.0', port=port)
+def show_interface_list():
+    print('Available network interfaces:')
+    for iface in netifaces.interfaces():
+        info = netifaces.ifaddresses(iface)
+        if netifaces.AF_INET in info:
+            print()
+            if netifaces.AF_LINK in info:
+                print('  {} ({})'.format(iface, info[netifaces.AF_LINK][0]['addr']))
+            else:
+                print('  {}'.format(iface))
+            for addr in info[netifaces.AF_INET]:
+                print('    IP/Mask: {} / {}'.format(addr['addr'], addr['netmask']))
+    print()
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
+    parser.add_argument('-p', '--port',
+            help='The port this server should listen on',
+            nargs='?', type=int, default=8000)
+    args = parser.parse_args()
+
+    show_interface_list()
+
+    bottle.run(host='0.0.0.0', port=args.port)
+
+
+if __name__ == '__main__':
+    main()
