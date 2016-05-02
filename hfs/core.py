@@ -17,6 +17,13 @@ bottle.TEMPLATE_PATH = [
 
 isdir = os.path.isdir
 
+filters = {
+    'hidden': lambda x: x.hidden,
+    'shown': lambda x: not x.hidden,
+    'file': lambda x: not x.isdir,
+    'dir': lambda x: x.isdir,
+}
+
 
 class FileItem:
     def __init__(self, fpath):
@@ -123,25 +130,35 @@ def serve_file(filepath):
 
 
 def serve_dir(filepath):
+    display_filters = bottle.request.urlparts.query.split('?')
+
     args = {
         'ancestors_dlist': get_ancestors_dlist(filepath),
         'curdir': filepath,
-        'flist': get_flist(filepath),
+        'flist': get_flist(filepath, display_filters),
         'host': bottle.request.urlparts.netloc,
     }
+
+    if bottle.request.get_header('User-Agent').startswith('curl'):
+        return bottle.template('curl-listdir.html', **args)
+
     return bottle.template('listdir.html', **args)
 
 
-def get_flist(filepath):
-    raw_flist = list(
-        filter(
-            lambda x: x.exists,
-            map(
-                lambda x: FileItem(os.path.join(filepath, x)),
-                os.listdir(filepath)
-            )
+def get_flist(filepath, display_filters):
+    raw_flist = filter(
+        lambda x: x.exists,
+        map(
+            lambda x: FileItem(os.path.join(filepath, x)),
+            os.listdir(filepath)
         )
     )
+
+    for f in display_filters:
+        raw_flist = filter(
+            filters.get(f, lambda x: x),
+            raw_flist,
+        )
 
     return sorted(
         raw_flist,
