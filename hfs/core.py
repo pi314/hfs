@@ -5,9 +5,10 @@ import mimetypes
 import os
 import sys
 
-from . import bottle
 import netifaces
 
+from . import __version__
+from . import bottle
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -201,6 +202,11 @@ def main():
     parser.add_argument('-p', '--port',
             help='The port this server should listen on',
             nargs='?', type=int, default=8000)
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%(prog)s-' + __version__,
+    )
     args = parser.parse_args()
 
     show_interface_list()
