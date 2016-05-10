@@ -23,7 +23,7 @@ setup(
         'Programming Language :: Python :: 3 :: Only',
         'Topic :: Utilities',
     ],
-    install_requires=['netifaces'],
+    install_requires=[],
     packages=find_packages(exclude=['scripts']),
     scripts=['scripts/hfs'],
 )

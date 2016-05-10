@@ -5,10 +5,9 @@ import mimetypes
 import os
 import sys
 
-import netifaces
-
 from . import __version__
 from . import bottle
+from . import show_my_ip
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
@@ -182,21 +181,6 @@ def get_ancestors_dlist(filepath):
     return ancestors_dlist
 
 
-def show_interface_list():
-    print('Available network interfaces:')
-    for iface in netifaces.interfaces():
-        info = netifaces.ifaddresses(iface)
-        if netifaces.AF_INET in info:
-            print()
-            if netifaces.AF_LINK in info:
-                print('  {} ({})'.format(iface, info[netifaces.AF_LINK][0]['addr']))
-            else:
-                print('  {}'.format(iface))
-            for addr in info[netifaces.AF_INET]:
-                print('    IP/Mask: {} / {}'.format(addr['addr'], addr['netmask']))
-    print()
-
-
 def main():
     parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
     parser.add_argument('-p', '--port',
@@ -209,7 +193,7 @@ def main():
     )
     args = parser.parse_args()
 
-    show_interface_list()
+    show_my_ip.show()
 
     bottle.run(host='0.0.0.0', port=args.port)
 
