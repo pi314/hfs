@@ -1,1 +1,2 @@
-__version__ = '0.2.0'
+from . import core
+from .constants import __version__

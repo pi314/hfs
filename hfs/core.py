@@ -5,9 +5,9 @@ import mimetypes
 import os
 import sys
 
-from . import __version__
 from . import bottle
 from . import show_my_ip
+from .constants import __version__
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
