@@ -47,6 +47,11 @@ def workaround():
     print('netifaces module not found, using Python stdlib workaround:')
     print()
     print('  {}'.format(IP))
-    print('  {}'.format(socket.gethostbyname(socket.gethostname())))
-    print('  {}'.format(socket.gethostbyname(socket.getfqdn())))
+
+    try:
+        print('  {}'.format(socket.gethostbyname(socket.gethostname())))
+        print('  {}'.format(socket.gethostbyname(socket.getfqdn())))
+    except socket.gaierror:
+        pass
+
     print()
