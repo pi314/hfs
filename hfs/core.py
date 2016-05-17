@@ -5,6 +5,8 @@ import mimetypes
 import os
 import sys
 
+from os.path import isdir, join
+
 from . import bottle
 from . import show_my_ip
 from .constants import __version__
@@ -12,10 +14,8 @@ from .constants import __version__
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 
 bottle.TEMPLATE_PATH = [
-    PROJECT_ROOT,
+    join(PROJECT_ROOT, 'html'),
 ]
-
-isdir = os.path.isdir
 
 filters = {
     'hidden': lambda x: x.hidden,
@@ -84,7 +84,7 @@ def root():
 
 @bottle.route('/static/<urlpath:path>')
 def static(urlpath):
-    return bottle.static_file(urlpath, root=os.path.join(PROJECT_ROOT, 'static'))
+    return bottle.static_file(urlpath, root=join(PROJECT_ROOT, 'static'))
 
 
 @bottle.route('/<urlpath:path>', method=('GET', 'POST'))
@@ -100,7 +100,7 @@ def serve(urlpath):
                 return bottle.redirect('/{}'.format(urlpath))
 
             for f in upload:
-                filepath = os.path.join(urlpath, f.raw_filename)
+                filepath = join(urlpath, f.raw_filename)
                 front, back = os.path.splitext(filepath)
                 filename_probing_str = ''
                 filename_probing_number = 1
@@ -149,7 +149,7 @@ def get_flist(filepath, display_filters):
     raw_flist = filter(
         lambda x: x.exists,
         map(
-            lambda x: FileItem(os.path.join(filepath, x)),
+            lambda x: FileItem(join(filepath, x)),
             os.listdir(filepath)
         )
     )
