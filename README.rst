@@ -18,3 +18,4 @@ With filter support:
 Example ::
 
   $ curl http://localhost:8000?hidden?file
+  $ curl --form "upload=@<filename>" http://localhost:8000
