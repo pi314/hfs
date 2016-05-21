@@ -24,10 +24,12 @@ filters = {
     'dir': lambda x: x.isdir,
 }
 
+allow_deletion = False
+
 
 class FileItem:
     def __init__(self, fpath):
-        self.fpath = fpath
+        self.fpath = fpath if fpath else '.'
 
     @property
     def fname(self):
@@ -64,6 +66,10 @@ class FileItem:
     def __repr__(self):
         return '<FileItem: "{}">'.format(self.ftext)
 
+    @property
+    def parent(self):
+        return FileItem(os.path.dirname(self.fpath))
+
 
 class DirectoryItem:
     def __init__(self, dname='', dpath=''):
@@ -87,13 +93,14 @@ def static(urlpath):
     return bottle.static_file(urlpath, root=join(PROJECT_ROOT, 'static'))
 
 
-@bottle.route('/<urlpath:path>', method=('GET', 'POST'))
+@bottle.route('/<urlpath:path>', method=('GET', 'POST', 'DELETE'))
 def serve(urlpath):
+    target = FileItem(urlpath)
     if bottle.request.method == 'GET':
-        return (serve_dir if isdir(urlpath) else serve_file)(urlpath)
+        return (serve_dir if target.isdir else serve_file)(urlpath)
 
     elif bottle.request.method == 'POST':
-        if isdir(urlpath):
+        if target.isdir:
             upload = bottle.request.files.getall('upload')
             if not upload:
                 # client did not provide a file
@@ -115,6 +122,20 @@ def serve(urlpath):
                 f.save(alternative_filename())
 
         return bottle.redirect('/{}'.format(urlpath))
+
+    elif bottle.request.method == 'DELETE':
+        if not allow_deletion:
+            raise bottle.HTTPError(status=405)
+
+        elif not target.exists:
+            raise bottle.HTTPError(status=404)
+
+        elif target.isdir:
+            return 'delete dir {}: {}'.format(urlpath, FileItem(urlpath).exists)
+
+        else:
+            os.remove(target.fpath)
+            return serve_dir(target.parent.fpath)
 
 
 def serve_file(filepath):
@@ -182,6 +203,8 @@ def get_ancestors_dlist(filepath):
 
 
 def main():
+    global allow_deletion
+
     parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
     parser.add_argument('-p', '--port',
             help='The port this server should listen on',
@@ -191,7 +214,17 @@ def main():
         action='version',
         version='%(prog)s-' + __version__,
     )
+    parser.add_argument(
+        '-d', '--allow-deletion',
+        help='Allow HTTP DELETE method',
+        action='store_true',
+    )
     args = parser.parse_args()
+
+    allow_deletion = args.allow_deletion
+
+    if allow_deletion:
+        print('*** Notice: file deletion is allowed ***')
 
     show_my_ip.show()
 
