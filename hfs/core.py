@@ -7,9 +7,9 @@ import sys
 
 from os.path import isdir, join
 
-from . import bottle
-from . import show_my_ip
-from .constants import __version__
+from hfs import bottle
+from hfs import show_my_ip
+from hfs.constants import __version__
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 

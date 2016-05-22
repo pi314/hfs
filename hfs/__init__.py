@@ -1,2 +1,2 @@
-from . import core
-from .constants import __version__
+from hfs import core
+from hfs.constants import __version__
