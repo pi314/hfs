@@ -33,25 +33,33 @@ def show():
 
     print()
 
+
 def workaround():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    print('netifaces module not found, using Python stdlib workaround:')
+    print()
+    available_addr = {'127.0.0.1'}
+
     try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         # doesn't even have to be reachable
         s.connect(('10.255.255.255', 0))
-        IP = s.getsockname()[0]
+        available_addr.add(s.getsockname()[0])
     except:
-        IP = '127.0.0.1'
+        pass
     finally:
         s.close()
 
-    print('netifaces module not found, using Python stdlib workaround:')
-    print()
-    print('  {}'.format(IP))
+    try:
+        available_addr.add(socket.gethostbyname(socket.gethostname()))
+    except:
+        pass
 
     try:
-        print('  {}'.format(socket.gethostbyname(socket.gethostname())))
-        print('  {}'.format(socket.gethostbyname(socket.getfqdn())))
-    except socket.gaierror:
+        available_addr.add(socket.gethostbyname(socket.getfqdn()))
+    except:
         pass
+
+    for addr in sorted(available_addr):
+        print('  {}'.format(addr))
 
     print()
