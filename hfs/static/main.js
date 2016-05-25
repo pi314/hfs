@@ -154,5 +154,8 @@ function file_upload (index) {
 }
 
 function file_delete (path) {
-    console.log(path);
+    var req = new XMLHttpRequest();
+    req.open('DELETE', path, true);
+    req.addEventListener('load', window.location.reload.bind(window.location), false);
+    req.send();
 }
