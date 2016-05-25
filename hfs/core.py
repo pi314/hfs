@@ -5,6 +5,7 @@ import mimetypes
 import os
 import sys
 
+from contextlib import suppress
 from os.path import isdir, join
 
 from hfs import bottle
@@ -131,7 +132,9 @@ def serve(urlpath):
             raise bottle.HTTPError(status=404)
 
         elif target.isdir:
-            return 'delete dir {}: {}'.format(urlpath, FileItem(urlpath).exists)
+            with suppress(OSError):
+                os.rmdir(target.fpath)
+            return serve_dir(target.parent.fpath)
 
         else:
             os.remove(target.fpath)
