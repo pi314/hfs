@@ -1,0 +1,20 @@
+<table><tbody>
+% for fitem in filelist:
+  <tr class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
+  % if allow_deletion:
+    <td>
+      <button class="deletion"
+    % if fitem.isdir and not fitem.is_empty_dir:
+          disabled
+    % end
+          onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
+        Delete
+      </button>
+    </td>
+  % end
+    <td>{{ fitem.mtime }}</td>
+    <td>{{ fitem.size }}</td>
+    <td><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a><td>
+  </tr>
+% end
+</tbody></table>
