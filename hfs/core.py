@@ -61,6 +61,13 @@ class FileItem:
         return isdir(self.fpath)
 
     @property
+    def is_empty_dir(self):
+        if not self.isdir:
+            return False
+
+        return len(os.listdir(self.fpath)) == 0
+
+    @property
     def exists(self):
         return os.path.exists(self.fpath)
 

@@ -26,7 +26,15 @@
   % for fitem in filter(lambda x: x.hidden, flist):
         <tr class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
     % if allow_deletion:
-          <td><button class="deletion">Delete</button></td>
+          <td>
+            <button class="deletion"
+      % if fitem.isdir and not fitem.is_empty_dir:
+                disabled
+      % end
+                onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
+              Delete
+            </button>
+          </td>
     % end
           <td>{{ fitem.mtime }}</td>
           <td>{{ fitem.size }}</td>
@@ -42,7 +50,15 @@
 % for fitem in filter(lambda x: not x.hidden, flist):
           <tr class="q-item" onmouseenter="show_qr_code('http://{{ host }}/{{ curdir }}/{{ fitem.fname }}');">
   % if allow_deletion:
-            <td><button class="deletion">Delete</button></td>
+            <td>
+              <button class="deletion"
+    % if fitem.isdir and not fitem.is_empty_dir:
+                  disabled
+    % end
+                  onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
+                Delete
+              </button>
+            </td>
   % end
             <td>{{ fitem.mtime }}</td>
             <td>{{ fitem.size }}</td>

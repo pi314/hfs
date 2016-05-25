@@ -11,6 +11,7 @@ $(function () {
     qrcode = new QRCode('qrcode', {
         'correctLevel' : QRCode.CorrectLevel.Q
     });
+
     $('.widget-show').click(function () {
         $('#widget-show-hidden-files').addClass('hidden');
         $('#hidden-files').removeClass('hidden');
@@ -150,4 +151,8 @@ function file_upload (index) {
     // req.addEventListener('abort', show_upload_cancel_message, false);
     req.open(method, url, true);
     req.send(form);
+}
+
+function file_delete (path) {
+    console.log(path);
 }
