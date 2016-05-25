@@ -11,14 +11,14 @@ $(function () {
     qrcode = new QRCode('qrcode', {
         'correctLevel' : QRCode.CorrectLevel.Q
     });
-    $('.btn-show').click(function () {
-        $('#btn-show-hidden-files').addClass('hidden');
+    $('.widget-show').click(function () {
+        $('#widget-show-hidden-files').addClass('hidden');
         $('#hidden-files').removeClass('hidden');
         console.log('test');
     });
 
-    $('.btn-hide').click(function () {
-        $('#btn-show-hidden-files').removeClass('hidden');
+    $('.widget-hide').click(function () {
+        $('#widget-show-hidden-files').removeClass('hidden');
         $('#hidden-files').addClass('hidden');
     });
 

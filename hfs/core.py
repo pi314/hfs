@@ -161,6 +161,7 @@ def serve_dir(filepath):
         'curdir': filepath,
         'flist': get_flist(filepath, display_filters),
         'host': bottle.request.urlparts.netloc,
+        'allow_deletion': allow_deletion,
     }
 
     if bottle.request.get_header('User-Agent').startswith('curl'):
