@@ -3,11 +3,7 @@
   <tr class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
   % if allow_deletion:
     <td>
-      <button class="deletion"
-    % if fitem.isdir and not fitem.is_empty_dir:
-          disabled
-    % end
-          onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
+      <button class="deletion" onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
         Delete
       </button>
     </td>

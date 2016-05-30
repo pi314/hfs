@@ -7,6 +7,7 @@ import sys
 
 from contextlib import suppress
 from os.path import isdir, join
+from shutil import rmtree
 
 from hfs import bottle
 from hfs import show_my_ip
@@ -38,7 +39,7 @@ class FileItem:
 
     @property
     def ftext(self):
-        return self.fname + ('', '/')[self.isdir]
+        return self.fname + ('/' if self.isdir else '')
 
     @property
     def mtime(self):
@@ -59,13 +60,6 @@ class FileItem:
     @property
     def isdir(self):
         return isdir(self.fpath)
-
-    @property
-    def is_empty_dir(self):
-        if not self.isdir:
-            return False
-
-        return len(os.listdir(self.fpath)) == 0
 
     @property
     def exists(self):
@@ -140,7 +134,7 @@ def serve(urlpath):
 
         elif target.isdir:
             with suppress(OSError):
-                os.rmdir(target.fpath)
+                rmtree(target.fpath)
             return serve_dir(target.parent.fpath)
 
         else:
