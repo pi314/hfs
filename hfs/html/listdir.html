@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>{{ host }} - Nano http server</title>
+    <title>hfs - {{ host }}</title>
     <meta name="viewport" content="width=device-width">
     <link rel="stylesheet" href="/static/main.css">
     <script src="/static/jquery.min.js"></script>
@@ -23,13 +23,13 @@
       <div id="hidden-files" class="hidden">
         <div class="widget widget-hide" colspan="3">[&#8595; hide hidden files]</div>
         <table><tbody>
-  % include('filelist.html', filelist=filter(lambda x: x.hidden, flist), allow_deletion=allow_deletion)
+  % include('filelist.html', filelist=filter(lambda x: x.hidden, flist))
         </tbody></table>
         <div class="widget widget-hide"><td>[&#8593; hide hidden files]</div>
       </div>
 % end
       <p>
-% include('filelist.html', filelist=filter(lambda x: not x.hidden, flist), allow_deletion=allow_deletion)
+% include('filelist.html', filelist=filter(lambda x: not x.hidden, flist))
       </p>
     </div>
     <div id="qrcode"></div>
