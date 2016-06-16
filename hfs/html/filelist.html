@@ -1,0 +1,16 @@
+<table><tbody>
+% for fitem in filelist:
+  <tr class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
+    <td>
+  % if fitem.deletable:
+      <button class="deletion" onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
+        Delete
+      </button>
+  % end
+    </td>
+    <td>{{ fitem.mtime }}</td>
+    <td>{{ fitem.size }}</td>
+    <td><a href="/{{ curdir }}/{{ fitem.fname }}">{{ fitem.ftext }}</a><td>
+  </tr>
+% end
+</tbody></table>

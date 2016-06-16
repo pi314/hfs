@@ -11,14 +11,15 @@ $(function () {
     qrcode = new QRCode('qrcode', {
         'correctLevel' : QRCode.CorrectLevel.Q
     });
-    $('.btn-show').click(function () {
-        $('#btn-show-hidden-files').addClass('hidden');
+
+    $('.widget-show').click(function () {
+        $('#widget-show-hidden-files').addClass('hidden');
         $('#hidden-files').removeClass('hidden');
         console.log('test');
     });
 
-    $('.btn-hide').click(function () {
-        $('#btn-show-hidden-files').removeClass('hidden');
+    $('.widget-hide').click(function () {
+        $('#widget-show-hidden-files').removeClass('hidden');
         $('#hidden-files').addClass('hidden');
     });
 
@@ -150,4 +151,11 @@ function file_upload (index) {
     // req.addEventListener('abort', show_upload_cancel_message, false);
     req.open(method, url, true);
     req.send(form);
+}
+
+function file_delete (path) {
+    var req = new XMLHttpRequest();
+    req.open('DELETE', path, true);
+    req.addEventListener('load', window.location.reload.bind(window.location), false);
+    req.send();
 }

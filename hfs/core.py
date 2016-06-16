@@ -5,7 +5,9 @@ import mimetypes
 import os
 import sys
 
+from contextlib import suppress
 from os.path import isdir, join
+from shutil import rmtree
 
 from hfs import bottle
 from hfs import show_my_ip
@@ -24,10 +26,14 @@ filters = {
     'dir': lambda x: x.isdir,
 }
 
+deletion_level = 0
+
+upload_pool = set()
+
 
 class FileItem:
     def __init__(self, fpath):
-        self.fpath = fpath
+        self.fpath = fpath if fpath else '.'
 
     @property
     def fname(self):
@@ -35,7 +41,7 @@ class FileItem:
 
     @property
     def ftext(self):
-        return self.fname + ('', '/')[self.isdir]
+        return self.fname + ('/' if self.isdir else '')
 
     @property
     def mtime(self):
@@ -64,6 +70,20 @@ class FileItem:
     def __repr__(self):
         return '<FileItem: "{}">'.format(self.ftext)
 
+    @property
+    def parent(self):
+        return FileItem(os.path.dirname(self.fpath))
+
+    @property
+    def deletable(self):
+        if deletion_level == 0:
+            return False
+
+        if deletion_level == 1:
+            return self.fpath in upload_pool
+
+        return True
+
 
 class DirectoryItem:
     def __init__(self, dname='', dpath=''):
@@ -87,34 +107,41 @@ def static(urlpath):
     return bottle.static_file(urlpath, root=join(PROJECT_ROOT, 'static'))
 
 
-@bottle.route('/<urlpath:path>', method=('GET', 'POST'))
+@bottle.route('/<urlpath:path>', method=('GET', 'POST', 'DELETE'))
 def serve(urlpath):
+    target = FileItem(urlpath)
     if bottle.request.method == 'GET':
-        return (serve_dir if isdir(urlpath) else serve_file)(urlpath)
+        return (serve_dir if target.isdir else serve_file)(urlpath)
 
     elif bottle.request.method == 'POST':
-        if isdir(urlpath):
+        if target.isdir:
             upload = bottle.request.files.getall('upload')
             if not upload:
                 # client did not provide a file
                 return bottle.redirect('/{}'.format(urlpath))
 
             for f in upload:
-                filepath = join(urlpath, f.raw_filename)
-                front, back = os.path.splitext(filepath)
-                filename_probing_str = ''
-                filename_probing_number = 1
-
-                def alternative_filename():
-                    return '{}{}{}'.format(front, filename_probing_str, back)
-
-                while os.path.exists(alternative_filename()):
-                    filename_probing_str = '-{}'.format(filename_probing_number)
-                    filename_probing_number += 1
-
-                f.save(alternative_filename())
+                fpath = get_uniq_fpath(join(urlpath, f.raw_filename))
+                f.save(fpath)
+                upload_pool.add(fpath)
 
         return bottle.redirect('/{}'.format(urlpath))
+
+    elif bottle.request.method == 'DELETE':
+        if not deletion_level:
+            raise bottle.HTTPError(status=405)
+
+        elif not target.exists:
+            raise bottle.HTTPError(status=404)
+
+        elif target.isdir:
+            with suppress(OSError):
+                rmtree(target.fpath)
+            return serve_dir(target.parent.fpath)
+
+        else:
+            os.remove(target.fpath)
+            return serve_dir(target.parent.fpath)
 
 
 def serve_file(filepath):
@@ -181,7 +208,24 @@ def get_ancestors_dlist(filepath):
     return ancestors_dlist
 
 
+def get_uniq_fpath(filepath):
+    fitem = FileItem(filepath)
+    if not fitem.exists:
+        return fitem.fpath
+
+    probing_number = 1
+    root, ext = os.path.splitext(fitem.fpath)
+    fitem = FileItem('{}-{}{}'.format(root, probing_number, ext))
+    while fitem.exists:
+        probing_number += 1
+        fitem = FileItem('{}-{}{}'.format(root, probing_number, ext))
+
+    return fitem.fpath
+
+
 def main():
+    global deletion_level
+
     parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
     parser.add_argument('-p', '--port',
             help='The port this server should listen on',
@@ -191,7 +235,24 @@ def main():
         action='version',
         version='%(prog)s-' + __version__,
     )
+
+    deletion_group = parser.add_mutually_exclusive_group()
+    deletion_group.add_argument(
+        '-d', dest='deletion_level', action='store_const', const=1,
+        help='Allow HTTP DELETE method, but only uploaded files can be deleted',
+    )
+    deletion_group.add_argument(
+        '-D', dest='deletion_level', action='store_const', const=2,
+        help='Allow HTTP DELETE method, all files can be deleted',
+    )
+    deletion_group.set_defaults(deletion_level=0)
+
     args = parser.parse_args()
+
+    deletion_level = args.deletion_level
+
+    if deletion_level:
+        print('*** Notice: Deletion Level = {} ***'.format(deletion_level))
 
     show_my_ip.show()
 
