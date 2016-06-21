@@ -45,7 +45,7 @@ class FileItem:
 
     @property
     def mtime(self):
-        t = datetime.datetime.fromtimestamp(os.path.getctime(self.fpath))
+        t = datetime.datetime.fromtimestamp(os.path.getmtime(self.fpath))
         return '{:04}/{:02}/{:02} {:02}:{:02}:{:02}'.format(
             t.year, t.month, t.day,
             t.hour, t.minute, t.second,
