@@ -226,10 +226,12 @@ def get_uniq_fpath(filepath):
 def main():
     global deletion_level
 
-    parser = argparse.ArgumentParser(description='Tiny HTTP File Server')
+    parser = argparse.ArgumentParser(
+        description='Tiny HTTP File Server',
+        prog='hfs')
     parser.add_argument('-p', '--port',
-            help='The port this server should listen on',
-            nargs='?', type=int, default=8000)
+        help='The port this server should listen on',
+        nargs='?', type=int, default=8000)
     parser.add_argument(
         '-v', '--version',
         action='version',
