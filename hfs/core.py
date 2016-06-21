@@ -166,7 +166,7 @@ def serve_dir(filepath):
         'host': bottle.request.urlparts.netloc,
     }
 
-    if bottle.request.get_header('User-Agent').startswith('curl'):
+    if bottle.request.get_header('User-Agent', default='').startswith('curl'):
         return bottle.template('curl-listdir.html', **args)
 
     return bottle.template('listdir.html', **args)
