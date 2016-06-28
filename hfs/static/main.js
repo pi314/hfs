@@ -8,9 +8,11 @@ var metadata = [
 
 
 $(function () {
-    qrcode = new QRCode('qrcode', {
+    var qrcode = new QRCode('qrcode', {
         'correctLevel' : QRCode.CorrectLevel.Q
     });
+    qrcode.clear();
+    qrcode.makeCode(decodeURIComponent(window.location));
 
     $('.widget-show').click(function () {
         $('#widget-show-hidden-files').addClass('hidden');
@@ -23,18 +25,10 @@ $(function () {
         $('#hidden-files').addClass('hidden');
     });
 
-    show_qr_code(window.location);
-
     $('#file').change(file_selected);
     $('#btn_upload').click(start_upload);
 
 });
-
-
-function show_qr_code (text) {
-    qrcode.clear();
-    qrcode.makeCode(decodeURIComponent(text));
-}
 
 
 function add_metadata (file) {

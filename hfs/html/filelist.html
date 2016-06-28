@@ -1,6 +1,6 @@
 <table><tbody>
 % for fitem in filelist:
-  <tr class="q-item" onmouseenter="show_qr_code('/{{ curdir }}/{{ fitem.fname }}');">
+  <tr class="fitem">
     <td>
   % if fitem.deletable:
       <button class="deletion" onclick="file_delete('/{{ curdir }}/{{ fitem.fname }}')">
