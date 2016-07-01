@@ -1,9 +1,11 @@
 var metadata = [
-    // {
-    //      'filename': filename
-    //      'id': file#,
-    //      'dom_id': DOM id,
-    // }
+    /* structure: */
+    /*
+    {
+         'filename': filename,
+         'id': file#,
+    }
+    */
 ];
 
 
@@ -25,8 +27,10 @@ $(function () {
         $('#hidden-files').addClass('hidden');
     });
 
-    $('#file').change(file_selected);
-    $('#btn_upload').click(start_upload);
+    $('#file').change(on_file_selected);
+    $('#btn_upload').click(function () {
+        upload_file(0);
+    });
 
 });
 
@@ -75,28 +79,22 @@ function add_progress_bar (metadata_obj) {
 }
 
 
-function file_selected () {
+function on_file_selected () {
     var files = $('#file')[0].files;
     for (var i = 0; i < files.length; i++) {
         if (!add_metadata(files[i])) {
             continue;
         }
-        add_progress_bar(metadata[metadata.length-1]);
+        add_progress_bar(metadata[metadata.length - 1]);
     }
     console.log(metadata);
 }
 
 
-function start_upload () {
-    if (metadata.length == 0) {
+function upload_file (index) {
+    if (index >= metadata.length) {
         return;
     }
-
-    file_upload(0);
-}
-
-
-function file_upload (index) {
     var metadata_obj = metadata[index];
     var req = new XMLHttpRequest();
     var form = new FormData();
@@ -125,7 +123,7 @@ function file_upload (index) {
         if (index == metadata.length - 1) {
             window.location.reload();
         } else {
-            file_upload(index + 1);
+            upload_file(index + 1);
         }
     }
 
