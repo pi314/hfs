@@ -2,8 +2,12 @@ var metadata = [
     /* structure: */
     /*
     {
-         'filename': filename,
-         'id': file#,
+         file: <file>,
+         form:
+         li:
+         progress_bar:
+         progress:
+         fsize:
     }
     */
 ];
@@ -28,7 +32,7 @@ $(function () {
     });
 
     $('#file').change(on_file_selected);
-    $('#btn_upload').click(function () {
+    $('#btn-upload').click(function () {
         upload_file(0);
     });
 
@@ -37,13 +41,12 @@ $(function () {
 
 function add_metadata (file) {
     for (var i = 0; i < metadata.length; i++) {
-        if (file.name == metadata[i].filename) {
+        if (file.name == metadata[i].file.name) {
             return false;
         }
     }
     var obj = {};
     obj.file = file;
-    obj.id = 'file'+ metadata.length;
 
     metadata.push(obj);
     return true;
@@ -52,30 +55,36 @@ function add_metadata (file) {
 
 function add_progress_bar (metadata_obj) {
     var curdir = $('#curdir').val();
-    console.log(curdir);
 
-    var form = $('<form method="POST" action="/'+ curdir +'" enctype="multipart/form-data">');
-    var li = $('<li id="'+ metadata_obj.id +'"></li>');
-    var progress_bar = $('<div class="progress-bar">');
-    var progress = $('<div class="progress">');
-    var filesize = $('<div class="file-size">'+ metadata_obj.file.size +'</div>')
-    var file = $('<input type="file" name="upload" class="hidden">');
+    var tr = $('<tr>')
+    var td_fname = $('<td class="fname">'+ metadata_obj.file.name +'</td>')
+    var td_fsize = $('<td class="fsize">'+ metadata_obj.file.size +'</td>')
+    tr.append(td_fname);
+    tr.append(td_fsize);
 
-    console.log(form);
+    // var form = $('<form method="POST" action="/'+ curdir +'" enctype="multipart/form-data">');
+    // var li = $('<li id="'+ metadata_obj.id +'"></li>');
+    // var progress_bar = $('<div class="progress-bar">');
+    // var progress = $('<div class="progress">');
+    // var filesize = $('<div class="file-size">'+ metadata_obj.file.size +'</div>')
+    // var file = $('<input type="file" name="upload" class="hidden">');
 
-    li.append(form);
-    form.append(file);
-    form.append(progress_bar);
-    progress_bar.append(progress);
-    progress_bar.append('<div class="file-name">'+ metadata_obj.file.name +'</div>');
-    progress_bar.append(filesize);
-    $('#pending_files').append(li);
+    // console.log(form);
+    //
+    // li.append(form);
+    // form.append(file);
+    // form.append(progress_bar);
+    // progress_bar.append(progress);
+    // progress_bar.append('<div class="file-name">'+ metadata_obj.file.name +'</div>');
+    // progress_bar.append(filesize);
+    // $('#pending_files').append(li);
+    $('#pending-files').append(tr);
 
-    metadata_obj.form = form;
-    metadata_obj.li = li;
-    metadata_obj.progress_bar = progress_bar;
-    metadata_obj.progress = progress;
-    metadata_obj.filesize = filesize;
+    // metadata_obj.form = form;
+    // metadata_obj.li = li;
+    // metadata_obj.progress_bar = progress_bar;
+    // metadata_obj.progress = progress;
+    // metadata_obj.filesize = filesize;
 }
 
 
@@ -107,13 +116,13 @@ function upload_file (index) {
         if (evt.lengthComputable) {
             var percent = Math.round(evt.loaded * 100 / evt.total);
             metadata_obj.progress.css('width', percent +'%');
-            metadata_obj.filesize.text(evt.loaded +'/'+ evt.total);
+            metadata_obj.fsize.text(evt.loaded +'/'+ evt.total);
         } else {
             metadata_obj.progress.css({
                 'width': '100%',
                 'background': 'yellow',
             });
-            metadata_obj.filesize.text('N/A');
+            metadata_obj.fsize.text('N/A');
         }
     }
 

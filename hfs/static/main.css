@@ -24,10 +24,6 @@
         height: 100%;
         margin: auto;
     }
-
-    .progress-bar {
-        width: 100%;
-    }
 }
 
 @media (min-width: 768px) { /* larger than sm */
@@ -38,10 +34,6 @@
         width: 256px;
         height: 256px;
     }
-
-    .progress-bar {
-        width: 400px;
-    }
 }
 
 #file-browser {
@@ -50,15 +42,16 @@
 }
 
 #file-browser *,
-h2 * {
+h2 *,
+#pending-files * {
     font-size: 20px;
 }
 
-table {
+table.flist {
     border-collapse: collapse;
 }
 
-td {
+table.flist td {
     padding-left: 10px;
 }
 
@@ -72,33 +65,22 @@ td {
 }
 
 .fitem:hover {
-    background: gold;
+    background: lightgray;
 }
 
-.progress-bar {
-    display: inline-block;
-    position: relative;
+table#pending-files td:nth-child(1) {
     border: 1px solid black;
     border-radius: 3px;
-    height: 20px;
-    font-size: 14px;
 }
 
-.progress {
+.fname {
+    position: relative;
+}
+
+.fname::before {
     position: absolute;
-    background: lime;
-    width: 0;
     height: 100%;
-}
-
-.file-name {
-    position: absolute;
-    left: 1%;
-    max-width: 95%;
-}
-
-.file-size {
-    position: absolute;
-    right: 1%;
-    max-width: 95%;
+    background: lime;
+    content: '';
+    z-index: -1;
 }
