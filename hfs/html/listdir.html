@@ -24,13 +24,13 @@
       <div id="hidden-files" class="hidden">
         <div class="widget widget-hide" colspan="3">[&#8595; hide hidden files]</div>
         <table><tbody>
-  % include('filelist.html', filelist=filter(lambda x: x.hidden, flist))
+  % include('filelist.html', flist=filter(lambda x: x.hidden, flist))
         </tbody></table>
         <div class="widget widget-hide"><td>[&#8593; hide hidden files]</div>
       </div>
 % end
       <p>
-% include('filelist.html', filelist=filter(lambda x: not x.hidden, flist))
+% include('filelist.html', flist=filter(lambda x: not x.hidden, flist))
       </p>
     </div>
     <div id="qrcode"></div>
@@ -38,10 +38,10 @@
     <h2>Upload file:</h2>
     <input type="file" id="file" name="upload" multiple>
     <input id="curdir" type="hidden" value="{{ curdir }}">
-    <ul id="pending_files">
-    </ul>
+    <table id="pending-files">
+    </table>
 
-    <button id="btn_upload">Upload</button><br>
+    <button id="btn-upload">Upload</button><br>
     <div id="message"></div>
   </body>
 </html>
