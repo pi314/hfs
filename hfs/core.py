@@ -97,6 +97,10 @@ class DirectoryItem:
         return '<DirectoryItem: "{}">'.format(self.dpath)
 
 
+def is_user_agent_curl():
+    return bottle.request.get_header('User-Agent', default='').startswith('curl')
+
+
 @bottle.route('/', method=('GET', 'POST'))
 def root():
     return serve('.')
@@ -128,15 +132,16 @@ def serve(urlpath):
         return bottle.redirect('/{}'.format(urlpath))
 
     elif bottle.request.method == 'DELETE':
-        if not deletion_level:
-            raise bottle.HTTPError(status=405)
+        if not deletion_level or not target.deletable:
+            return error_page(405, 'Deletion not permitted')
 
         elif not target.exists:
-            raise bottle.HTTPError(status=404)
+            return error_page(404, 'File "{}" does not exist'.format(target.fpath))
 
         elif target.isdir:
             with suppress(OSError):
                 rmtree(target.fpath)
+
             return serve_dir(target.parent.fpath)
 
         else:
@@ -144,16 +149,40 @@ def serve(urlpath):
             return serve_dir(target.parent.fpath)
 
 
+def error_page(status, reason=None):
+    if isinstance(status, int):
+        status = '{} {}'.format(
+                status,
+                bottle.HTTP_CODES.get(status, bottle.HTTP_CODES[500])
+        )
+
+    if not is_user_agent_curl():
+        raise bottle.HTTPError(status=status)
+
+    if reason:
+        return 'Error: {}\n{}\n'.format(status, reason)
+
+    return 'Error: {}\n'.format(status)
+
+
 def serve_file(filepath):
     mimetype = mimetypes.guess_type(filepath)[0]
     if mimetype is None:
         mimetype='application/octet-stream'
 
-    return bottle.static_file(
+    target_file = bottle.static_file(
         filepath,
         root='.',
         mimetype=mimetype
     )
+
+    if target_file.status_code == 404:
+        return error_page(target_file.status, 'File "{}" does not exist'.format(filepath))
+
+    elif target_file.status_code >= 400:
+        return error_page(target_file.status)
+
+    return target_file
 
 
 def serve_dir(filepath):
@@ -166,7 +195,7 @@ def serve_dir(filepath):
         'host': bottle.request.urlparts.netloc,
     }
 
-    if bottle.request.get_header('User-Agent', default='').startswith('curl'):
+    if is_user_agent_curl():
         return bottle.template('curl-listdir.html', **args)
 
     return bottle.template('listdir.html', **args)
