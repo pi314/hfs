@@ -40,7 +40,7 @@ setup(
     install_requires=[],
     packages=find_packages(exclude=['scripts']),
     package_data={
-            '': ['*.py', 'static/*', '*.html'],
+            '': ['*.py', 'static/*', 'html/*'],
         },
     scripts=['scripts/hfs'],
 )
