@@ -19,7 +19,7 @@ bottle.TEMPLATE_PATH = [
     join(PROJECT_ROOT, 'html'),
 ]
 
-filters = {
+flist_filters = {
     'hidden': lambda x: x.hidden,
     'shown': lambda x: not x.hidden,
     'file': lambda x: not x.isdir,
@@ -186,13 +186,14 @@ def serve_file(filepath):
 
 
 def serve_dir(filepath):
-    display_filters = bottle.request.urlparts.query.split('?')
+    filters = bottle.request.urlparts.query.split('?')
 
     args = {
         'ancestors_dlist': get_ancestors_dlist(filepath),
         'curdir': filepath,
-        'flist': get_flist(filepath, display_filters),
+        'flist': get_flist(filepath, filters),
         'host': bottle.request.urlparts.netloc,
+        'pipe': 'pipe' in filters,
     }
 
     if is_user_agent_curl():
@@ -201,7 +202,7 @@ def serve_dir(filepath):
     return bottle.template('listdir.html', **args)
 
 
-def get_flist(filepath, display_filters):
+def get_flist(filepath, filters):
     raw_flist = filter(
         lambda x: x.exists,
         map(
@@ -210,9 +211,9 @@ def get_flist(filepath, display_filters):
         )
     )
 
-    for f in display_filters:
+    for f in filters:
         raw_flist = filter(
-            filters.get(f, lambda x: x),
+            flist_filters.get(f, lambda x: x),
             raw_flist,
         )
 
