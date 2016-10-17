@@ -3,6 +3,7 @@ import argparse
 import datetime
 import mimetypes
 import os
+import re
 import sys
 
 from contextlib import suppress
@@ -29,6 +30,8 @@ flist_filters = {
 deletion_level = 0
 
 upload_pool = set()
+
+acl = []
 
 
 class FileItem:
@@ -97,8 +100,73 @@ class DirectoryItem:
         return '<DirectoryItem: "{}">'.format(self.dpath)
 
 
+class ACLRule:
+    def __init__(self, rule_str):
+        # 0.0.0.0
+        # localhost
+        # 127.0.0.1/24
+        # 127.0.0.1/255.255.255.0
+        self.rule_str = rule_str
+        m = re.match(r'^(d?)(\d+\.\d+\.\d+\.\d+|localhost)(?:/(\d+|\d+\.\d+\.\d+\.\d+))?$', rule_str)
+        if not m:
+            self.valid = False
+            return
+
+        self.valid = True
+        self.deny = (m.group(1) in ('d', 'D'))
+        m_addr = re.match(r'^(\d+)\.(\d+)\.(\d+)\.(\d+)|(localhost)$', m.group(2))
+        if not m_addr.group(5):
+            a = int(m_addr.group(1))
+            b = int(m_addr.group(2))
+            c = int(m_addr.group(3))
+            d = int(m_addr.group(4))
+            self.addr = a << 24 | b << 16 | c << 8 | d
+        else:
+            self.addr = 0x7f000001
+
+        if not m.group(3):
+            self.mask = 0x00000000
+            return
+
+        m_mask = re.match(r'^(\d+)\.(\d+)\.(\d+)\.(\d+)|(\d+)$', m.group(3))
+        if not m_mask.group(5):
+            a = int(m_addr.group(1))
+            b = int(m_addr.group(2))
+            c = int(m_addr.group(3))
+            d = int(m_addr.group(4))
+            self.mask = a << 24 | b << 16 | c << 8 | d
+        else:
+            self.mask = int(m_mask.group(5))
+
+    def __repr__(self):
+        if not self.valid:
+            return '<ACLRule: invalid rule: "{}">'.format(self.rule_str)
+
+        return '<ACLRule: "{}">'.format(self.rule_str)
+
+    def match(self, addr):
+        m_addr = re.match(r'^(\d+)\.(\d+)\.(\d+)\.(\d+)$', addr)
+        if not m_addr:
+            return False
+
+        a = int(m_addr.group(1))
+        b = int(m_addr.group(2))
+        c = int(m_addr.group(3))
+        d = int(m_addr.group(4))
+        addr = a << 24 | b << 16 | c << 8 | d
+        return ((addr ^ self.addr) ^ self.mask) == 0
+
+
 def is_user_agent_curl():
     return bottle.request.get_header('User-Agent', default='').startswith('curl')
+
+
+def is_client_denied(client_addr):
+    for rule in acl:
+        if rule.match(client_addr):
+            return rule.deny
+
+    return False
 
 
 @bottle.route('/', method=('GET', 'POST'))
@@ -114,6 +182,10 @@ def static(urlpath):
 @bottle.route('/<urlpath:path>', method=('GET', 'POST', 'DELETE'))
 def serve(urlpath):
     target = FileItem(urlpath)
+    bottle.request.get('REMOTE_ADDR')
+    if is_client_denied(bottle.request.get('REMOTE_ADDR')):
+        raise bottle.HTTPError(status=403, body='Permission denied')
+
     if bottle.request.method == 'GET':
         return (serve_dir if target.isdir else serve_file)(urlpath)
 
@@ -133,10 +205,10 @@ def serve(urlpath):
 
     elif bottle.request.method == 'DELETE':
         if not deletion_level or not target.deletable:
-            return error_page(405, 'Deletion not permitted')
+            raise bottle.HTTPError(status=405, body='Deletion not permitted')
 
         elif not target.exists:
-            return error_page(404, 'File "{}" does not exist'.format(target.fpath))
+            raise bottle.HTTPError(status=404, body='File "{}" does not exist'.format(target.fpath))
 
         elif target.isdir:
             with suppress(OSError):
@@ -149,7 +221,12 @@ def serve(urlpath):
             return serve_dir(target.parent.fpath)
 
 
-def error_page(status, reason=None):
+@bottle.error(403)
+@bottle.error(404)
+@bottle.error(405)
+def error_page(error):
+    status = error.status
+    reason = error.body
     if isinstance(status, int):
         status = '{} {}'.format(
                 status,
@@ -157,7 +234,7 @@ def error_page(status, reason=None):
         )
 
     if not is_user_agent_curl():
-        raise bottle.HTTPError(status=status)
+        return '<h1>Error: {}</h1><h2>{}</h2>'.format(status, reason)
 
     if reason:
         return 'Error: {}\n{}\n'.format(status, reason)
@@ -177,10 +254,10 @@ def serve_file(filepath):
     )
 
     if target_file.status_code == 404:
-        return error_page(target_file.status, 'File "{}" does not exist'.format(filepath))
+        raise bottle.HTTPError(status=target_file.status, body='File "{}" does not exist'.format(filepath))
 
     elif target_file.status_code >= 400:
-        return error_page(target_file.status)
+        raise bottle.HTTPError(status=target_file.status)
 
     return target_file
 
@@ -255,7 +332,7 @@ def get_uniq_fpath(filepath):
 
 def main():
     global deletion_level
-
+    global acl
     parser = argparse.ArgumentParser(
         description='Tiny HTTP File Server',
         prog='hfs')
@@ -263,28 +340,30 @@ def main():
         help='The port this server should listen on',
         nargs='?', type=int, default=8000)
     parser.add_argument(
+        '-a', '--acl',
+        nargs='*', default=[])
+    parser.add_argument(
         '-v', '--version',
         action='version',
-        version='%(prog)s-' + __version__,
-    )
+        version='%(prog)s-' + __version__)
 
     deletion_group = parser.add_mutually_exclusive_group()
     deletion_group.add_argument(
         '-d', dest='deletion_level', action='store_const', const=1,
-        help='Allow HTTP DELETE method, but only uploaded files can be deleted',
-    )
+        help='Allow HTTP DELETE method, but only uploaded files can be deleted')
     deletion_group.add_argument(
         '-D', dest='deletion_level', action='store_const', const=2,
-        help='Allow HTTP DELETE method, all files can be deleted',
-    )
+        help='Allow HTTP DELETE method, all files can be deleted')
     deletion_group.set_defaults(deletion_level=0)
 
     args = parser.parse_args()
 
     deletion_level = args.deletion_level
-
     if deletion_level:
         print('*** Notice: Deletion Level = {} ***'.format(deletion_level))
+
+    acl = [ACLRule(rule) for rule in args.acl]
+    print(acl)
 
     show_my_ip.show()
 
