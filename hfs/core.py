@@ -341,6 +341,7 @@ def main():
         nargs='?', type=int, default=8000)
     parser.add_argument(
         '-a', '--acl',
+        help='Access Control List (first match), in the following format: "127.0.0.1", "127.0.0.1/24", "127.0.0.1/255.255.255.0". Prefix a "d" to deny a subnet',
         nargs='*', default=[])
     parser.add_argument(
         '-v', '--version',
