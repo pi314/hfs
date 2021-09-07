@@ -1,3 +1,7 @@
+This toy-project was abandoned because ``python3 -m http.server`` works fine mostly.
+
+If you need (or just want) a fancy local HTTP server, https://github.com/svenstaro/miniserve may be useful.
+
 ================
 HTTP File Server
 ================
